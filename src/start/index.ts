@@ -1,9 +1,12 @@
-import { managedParse as parseConfig} from "./parseConfig";
+import { resolve as pResolve, join as pJoin, parse } from "path";
+
+import { managedCopySettings as copySettings } from './copySettings';
+
 import { getPackages } from "../util/packages";
-// import copysettings
+
 
 export default function start (args): void {
-    // const config = parseConfig(args);
-    console.log(getPackages(args.path))
-    // copysettings
+    args.path = args.path === process.cwd() ? args.path : pResolve(process.cwd(), args.path);
+    const packages = getPackages(args.path);
+    copySettings(args, packages);
 }

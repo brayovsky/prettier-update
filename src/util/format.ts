@@ -2,9 +2,9 @@ export function error(message: string): void {
     console.error("\x1b[41mError:\x1b[0m", message);
 }
 
-export function errorAndExit(message: string, exitCode: number): void {
+export function errorAndExit(message: string, exitCode?: number): void {
     error(message);
-    process.exit(exitCode);
+    process.exit(exitCode || 1);
 }
 
 export function verbose(message: string): void {

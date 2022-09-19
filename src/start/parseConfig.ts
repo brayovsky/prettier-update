@@ -4,6 +4,12 @@ import { readFileSync as fsReadFileSync} from "fs";
 import { errorAndExit } from "../util/format";
 import { isError, fileExists } from "../util/helpers";
 import { IArgs } from "../types/args";
+import { IPrettierUpdateConfig } from "../types/prettierUpdateConfig";
+
+/**
+ * TODO
+ * Better parsing to allow dynamic options
+ */
 
 function getConfigFile(cwd: string): string | Error {   
     if(!fileExists(cwd, "prettier-update.json")) {
@@ -12,7 +18,7 @@ function getConfigFile(cwd: string): string | Error {
     return pJoin(cwd, "prettier-update.json");
 }
 
-function parseConfigFile(file: string): string | Error {
+function parseConfigFile(file: string): IPrettierUpdateConfig | Error {
     const configText = fsReadFileSync(file).toString();
     let configJson, errorMessage = "Invalid config json";
 
@@ -33,10 +39,10 @@ function parseConfigFile(file: string): string | Error {
     return configJson;
 }
 
-export function managedParse(args: IArgs): string {
+export function managedParse(args: IArgs): IPrettierUpdateConfig {
     const configFile = getConfigFile(args.path);
     isError(configFile) && errorAndExit((<Error>configFile).message, 1);
     const config = parseConfigFile(<string>configFile);
     isError(config) && errorAndExit((<Error>config).message, 1);
-    return <string>config;
+    return <IPrettierUpdateConfig>config;
 }
