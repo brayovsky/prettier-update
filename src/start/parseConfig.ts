@@ -18,7 +18,7 @@ function parseConfigFile(file: string): string | Error {
 
     try {
         configJson = JSON.parse(configText);
-        const requisiteProperties = ["novel"];
+        const requisiteProperties = ["prettierConfig", "version"];
         const missingProps = requisiteProperties.reduce((allMissing, currentProp) => {
             if(!configJson.hasOwnProperty(currentProp)) allMissing += ` ${currentProp}`;
             return allMissing;
@@ -34,8 +34,7 @@ function parseConfigFile(file: string): string | Error {
 }
 
 export function managedParse(args: IArgs): string {
-    const cwd = args.path === process.cwd() ? args.path : pResolve(process.cwd(), args.path);
-    const configFile = getConfigFile(cwd);
+    const configFile = getConfigFile(args.path);
     isError(configFile) && errorAndExit((<Error>configFile).message, 1);
     const config = parseConfigFile(<string>configFile);
     isError(config) && errorAndExit((<Error>config).message, 1);
