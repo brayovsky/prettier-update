@@ -3,6 +3,7 @@
     "version": "0.0.0",
     "scripts": {},
     "dependencies": {
+        "axios": "^0.27.2",
         "fs-extra": "^10.1.0",
         "workspace-tools": "^0.25.1",
         "yargs": "^17.5.1"

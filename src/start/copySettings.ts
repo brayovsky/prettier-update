@@ -3,7 +3,7 @@ import { readFileSync as fsReadFileSync, writeFileSync as fsWriteFileSync } from
 
 import { fileExists, isError } from "../util/helpers";
 import { IArgs } from "../types/args";
-import { errorAndExit, verbose } from "../util/format";
+import { errorAndExit, info } from "../util/format";
 
 /**
  * TODO
@@ -42,7 +42,7 @@ function copySettingsToPackages(cwd: string, settings: {[key: string]: any}, pac
     try {
         packages.forEach(packageRoot => {
             fsWriteFileSync(pJoin(packageRoot, ".prettierrc"), JSON.stringify(settings))
-            isVerbose && verbose(`Copied .prettierrc to ${packageRoot}`);
+            isVerbose && info(`Copied .prettierrc to ${packageRoot}`);
         });
         return true
     } catch (error) {

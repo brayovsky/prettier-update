@@ -7,7 +7,7 @@ export function errorAndExit(message: string, exitCode?: number): void {
     process.exit(exitCode || 1);
 }
 
-export function verbose(message: string): void {
+export function info(message: string): void {
     console.log(message, "\n");
 }
 
