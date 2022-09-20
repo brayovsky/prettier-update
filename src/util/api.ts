@@ -41,9 +41,40 @@ export async function createRequest(
     retry--;
     verbose && info("Retrying request");
     if (retry === -1) {
+      // TODO: Log subset / relevant info only
       logError(error);
       return new Error(`Could not ${method} ${url}`);
     }
     return createRequest(url, method, accessToken, options, retry);
   }
+}
+
+export function createADOPullRequest(
+  title: string,
+  description: string,
+  source: string,
+  target: string
+) {
+  /**
+   * Add to env:
+   * - access token $(System.AccessToken)
+   * - collection uri $(System.CollectionUri)
+   * - build repository id $(Build.Repository.ID)
+   */
+
+  // TODO: Add reviewers from  ownership.json
+  return createRequest(
+    `${process.env.SYSTEM_COLLECTIONURI}/_apis/git/repositories/${process.env.BUILD_REPOSITORYID}/pullrequests?api-version=7.0`,
+    "POST",
+    process.env.SYSTEM_ACCESSTOKEN,
+    {
+      data: {
+        sourceRefName: source,
+        targetRefName: target, // configure possibly
+        status: "active",
+        title,
+        description,
+      },
+    }
+  );
 }

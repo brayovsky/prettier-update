@@ -1,4 +1,8 @@
 export interface IPrettierUpdateConfig {
+  // new prettier configuration
   prettierConfig: { [key: string]: any };
-  version: string;
+  // new prettier version
+  version?: string;
+  // branch to create pull requests against
+  mainBranch: string;
 }

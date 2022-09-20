@@ -40,8 +40,11 @@ function getLegacySettings(cwd: string): string | Error {
   return settings || new Error("Old prettier settings could not be found");
 }
 
+function mergeSettings(mainSettings, localSettings) {
+  // Local settings take precedence
+}
+
 function copySettingsToPackages(
-  cwd: string,
   settings: { [key: string]: any },
   packages: string[],
   isVerbose: boolean
@@ -65,7 +68,6 @@ export function managedCopySettings(args: IArgs, packages: string[]) {
   isError(settings) && errorAndExit((<Error>settings).message, 1);
   const parsedSettings = JSON.parse(<string>settings);
   const didCopy = copySettingsToPackages(
-    args.path,
     parsedSettings,
     packages,
     args.verbose

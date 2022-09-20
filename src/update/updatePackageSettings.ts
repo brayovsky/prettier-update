@@ -1,6 +1,11 @@
 import { join as pJoin } from "path";
 import { writeFileSync as fsWriteFileSync } from "fs";
+import { render } from "mustache";
+import { AxiosResponse } from "axios";
 
+import * as prTemplates from "../util/templates/pr";
+import { IPrettierUpdateStage } from "../types/prettierUpdateStage";
+import { createADOPullRequest } from "../util/api";
 import { IArgs } from "../types/args";
 import { IPrettierUpdateConfig } from "../types/prettierUpdateConfig";
 import { isError } from "../util/helpers";
@@ -22,6 +27,34 @@ function copySettingsToPackage(
   }
 }
 
+async function createBranch(): Promise<string> {
+  return "";
+}
+
+function commit(): string {
+  return "";
+}
+
+export async function createPullRequest(
+  config: IPrettierUpdateConfig
+): Promise<AxiosResponse<any, any> | Error> {
+  const view: IPrettierUpdateStage = {
+    stageNumber: 1,
+    stageDescription: "Add root settings to packages",
+  };
+  const title = render(prTemplates.title, view);
+  const description = render(prTemplates.body, view);
+  const target = `refs/heads/${config.mainBranch}`;
+  const source = await createBranch();
+  const response = await createADOPullRequest(
+    title,
+    description,
+    source,
+    target
+  );
+  return response;
+}
+
 export function managedUpdatePackageSettings(
   args: IArgs,
   config: IPrettierUpdateConfig,
@@ -29,4 +62,7 @@ export function managedUpdatePackageSettings(
 ) {
   const didCopy = copySettingsToPackage(config, packages);
   isError(didCopy) && errorAndExit((<Error>didCopy).message);
+  // createbranch
+  // commit
+  // pr
 }
