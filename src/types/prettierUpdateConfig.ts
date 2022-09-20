@@ -1,4 +1,4 @@
 export interface IPrettierUpdateConfig {
-    prettierConfig: {[key: string]: any},
-    version: string
+  prettierConfig: { [key: string]: any };
+  version: string;
 }

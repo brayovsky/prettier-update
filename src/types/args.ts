@@ -1,4 +1,4 @@
 export interface IArgs {
-    path: string;
-    verbose: boolean;
+  path: string;
+  verbose: boolean;
 }

@@ -1,5 +1,5 @@
 {
-  "name": "prettier-update",
+  "name": "prettier-updater",
   "version": "0.0.0",
   "scripts": {
     "prepare": "husky install"
