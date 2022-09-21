@@ -27,34 +27,6 @@ function copySettingsToPackage(
   }
 }
 
-async function createBranch(): Promise<string> {
-  return "";
-}
-
-function commit(): string {
-  return "";
-}
-
-export async function createPullRequest(
-  config: IPrettierUpdateConfig
-): Promise<AxiosResponse<any, any> | Error> {
-  const view: IPrettierUpdateStage = {
-    stageNumber: 1,
-    stageDescription: "Add root settings to packages",
-  };
-  const title = render(prTemplates.title, view);
-  const description = render(prTemplates.body, view);
-  const target = `refs/heads/${config.mainBranch}`;
-  const source = await createBranch();
-  const response = await createADOPullRequest(
-    title,
-    description,
-    source,
-    target
-  );
-  return response;
-}
-
 export function managedUpdatePackageSettings(
   args: IArgs,
   config: IPrettierUpdateConfig,

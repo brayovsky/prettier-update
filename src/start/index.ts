@@ -1,8 +1,8 @@
-import { resolve as pResolve, join as pJoin, parse } from "path";
+import { resolve as pResolve } from "path";
 
 import { managedCopySettings as copySettings } from "./copySettings";
+import { managedParse as parseConfig } from "./parseConfig";
 import { getPackages } from "../util/packages";
-import { readProgress, writeProgress } from "../tracker";
 
 export default function start(args): void {
   args.path =
@@ -10,5 +10,6 @@ export default function start(args): void {
       ? args.path
       : pResolve(process.cwd(), args.path);
   const packages = getPackages(args.path);
-  copySettings(args, packages);
+  const config = parseConfig(args);
+  copySettings(args, packages, config);
 }

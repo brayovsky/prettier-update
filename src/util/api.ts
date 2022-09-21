@@ -1,5 +1,9 @@
 import { AxiosRequestConfig, AxiosResponse, default as axios } from "axios";
+import { render } from "mustache";
 
+import * as prTemplates from "../util/templates/pr";
+import { IPrettierUpdateStage } from "../types/prettierUpdateStage";
+import { IPrettierUpdateConfig } from "../types/prettierUpdateConfig";
 import { error as logError, info } from "./format";
 
 export async function createRequest(
@@ -9,7 +13,7 @@ export async function createRequest(
   options: AxiosRequestConfig = {},
   retry: number = 5,
   verbose = false
-): Promise<AxiosResponse<any, any> | Error> {
+): Promise<AxiosResponse<any, any>> {
   const xhrOptions: AxiosRequestConfig = {
     method,
     url,
@@ -33,6 +37,7 @@ export async function createRequest(
     ...options,
   };
 
+  let res;
   try {
     verbose && info(`Requesting ${url}`);
     const res = await axios(url, xhrOptions);
@@ -43,18 +48,18 @@ export async function createRequest(
     if (retry === -1) {
       // TODO: Log subset / relevant info only
       logError(error);
-      return new Error(`Could not ${method} ${url}`);
+      return res;
     }
     return createRequest(url, method, accessToken, options, retry);
   }
 }
 
-export function createADOPullRequest(
-  title: string,
-  description: string,
-  source: string,
-  target: string
-) {
+// TODO: Add reviewers from  ownership.json
+export async function createADOPullRequest(
+  sourceBranch: string,
+  config: IPrettierUpdateConfig,
+  view: IPrettierUpdateStage
+): Promise<AxiosResponse<any, any>> {
   /**
    * Add to env:
    * - access token $(System.AccessToken)
@@ -62,8 +67,11 @@ export function createADOPullRequest(
    * - build repository id $(Build.Repository.ID)
    */
 
-  // TODO: Add reviewers from  ownership.json
-  return createRequest(
+  const title = render(prTemplates.title, view);
+  const description = render(prTemplates.body, view);
+  const target = `refs/heads/${config.mainBranch}`;
+  const source = `refs/heads/${sourceBranch}`;
+  const response = await createRequest(
     `${process.env.SYSTEM_COLLECTIONURI}/_apis/git/repositories/${process.env.BUILD_REPOSITORYID}/pullrequests?api-version=7.0`,
     "POST",
     process.env.SYSTEM_ACCESSTOKEN,
@@ -77,4 +85,5 @@ export function createADOPullRequest(
       },
     }
   );
+  return response;
 }

@@ -6,7 +6,12 @@ import {
 
 import { fileExists, isError } from "../util/helpers";
 import { IArgs } from "../types/args";
-import { errorAndExit, info } from "../util/format";
+import { errorAndExit, info, positive } from "../util/format";
+import { branch, clean, push } from "../util/git";
+import { IPrettierUpdateConfig } from "../types/prettierUpdateConfig";
+import { stageAndCommit } from "workspace-tools";
+import { createADOPullRequest } from "../util/api";
+import { writeProgress } from "../tracker";
 
 /**
  * TODO
@@ -44,6 +49,7 @@ function mergeSettings(mainSettings, localSettings) {
   // Local settings take precedence
 }
 
+// TODO: Merge settings if package has prettierrc
 function copySettingsToPackages(
   settings: { [key: string]: any },
   packages: string[],
@@ -63,7 +69,18 @@ function copySettingsToPackages(
   }
 }
 
-export function managedCopySettings(args: IArgs, packages: string[]) {
+// Running prettier --write at the end of this stage should lead to nothing
+export async function managedCopySettings(
+  args: IArgs,
+  packages: string[],
+  config: IPrettierUpdateConfig
+) {
+  const branchName = `user/prettier-updater/copy-legacy-settings-${Math.floor(
+    Math.random() * 10e6
+  )}`;
+  const didBranch = branch(branchName, args);
+  isError(didBranch) && errorAndExit((<Error>didBranch).message);
+
   const settings = getLegacySettings(args.path);
   isError(settings) && errorAndExit((<Error>settings).message, 1);
   const parsedSettings = JSON.parse(<string>settings);
@@ -73,4 +90,40 @@ export function managedCopySettings(args: IArgs, packages: string[]) {
     args.verbose
   );
   isError(didCopy) && errorAndExit((<Error>didCopy).message, 1);
+
+  push(branchName, args);
+  const response = await createADOPullRequest(branchName, config, {
+    stageNumber: 1,
+    stageDescription: "Add root settings to packages",
+  });
+
+  if (response.status === 200) {
+    positive(`Created pull request ${response.data.url}`);
+    const didWrite = writeProgress(
+      {
+        currentStage: 1,
+        branches: [
+          {
+            name: branchName,
+            pullRequestID: response.data.pullRequestID,
+            pullRequestStatus: response.data.status,
+          },
+        ],
+      },
+      args
+    );
+    if (isError(didWrite)) {
+      clean(args);
+      errorAndExit((<Error>didWrite).message);
+    }
+    stageAndCommit(
+      [`.`],
+      "Prettier Updater - Copy legacy settings to all packages",
+      args.path
+    );
+    push(branchName, args);
+  } else {
+    clean(args);
+    errorAndExit("Failed to create Pull Request");
+  }
 }

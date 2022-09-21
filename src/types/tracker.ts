@@ -1,5 +1,10 @@
 export interface IProgress {
   currentStage: number;
-  allStages: number;
-  pullRequests: number[];
+  branches: IProgressBranch[];
+}
+
+interface IProgressBranch {
+  name: string;
+  pullRequestID: number;
+  pullRequestStatus: string;
 }

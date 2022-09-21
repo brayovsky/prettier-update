@@ -46,7 +46,6 @@ export function writeProgress(
     progressData += Buffer.from(JSON.stringify(progressToWrite)).toString(
       "base64"
     );
-    console.log("---------------->", progressData);
     fsWriteFileSync(updaterLockFile, progressData);
     return true;
   } catch (error) {
