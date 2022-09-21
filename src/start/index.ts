@@ -9,8 +9,6 @@ export default function start(args): void {
     args.path === process.cwd()
       ? args.path
       : pResolve(process.cwd(), args.path);
-  // const packages = getPackages(args.path);
-  // copySettings(args, packages);
-  writeProgress({ currentStage: 1, allStages: 4 }, args);
-  console.log(readProgress(args.path));
+  const packages = getPackages(args.path);
+  copySettings(args, packages);
 }
