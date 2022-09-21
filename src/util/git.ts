@@ -2,12 +2,12 @@ import * as childprocess from "child_process";
 import { IArgs } from "../types/args";
 import { info } from "./format";
 
-export default function git(argvs: IArgs, ...args: string[]): string | Error {
+export default function git(argvs: IArgs, ...args: string[]): string {
   info(`Calling: git ${args.join(" ")}`);
   const gitProcess = childprocess.spawnSync("git", args, { cwd: argvs.path });
 
   if (gitProcess.status !== 0) {
-    return new Error(gitProcess.stderr.toString());
+    throw new Error(gitProcess.stderr.toString());
   }
   return gitProcess.stdout.toString();
 }

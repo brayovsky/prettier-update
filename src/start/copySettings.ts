@@ -78,8 +78,7 @@ export async function managedCopySettings(
   const branchName = `user/prettier-updater/copy-legacy-settings-${Math.floor(
     Math.random() * 10e6
   )}`;
-  const didBranch = branch(branchName, args);
-  isError(didBranch) && errorAndExit((<Error>didBranch).message);
+  branch(branchName, args);
 
   const settings = getLegacySettings(args.path);
   isError(settings) && errorAndExit((<Error>settings).message, 1);
