@@ -1,15 +1,11 @@
-import { join as pJoin } from "path";
+import { join as pJoin, basename as pBasename } from "path";
 import { writeFileSync as fsWriteFileSync } from "fs";
-import { render } from "mustache";
-import { AxiosResponse } from "axios";
-
-import * as prTemplates from "../util/templates/pr";
-import { IPrettierUpdateStage } from "../types/prettierUpdateStage";
-import { createADOPullRequest } from "../util/api";
 import { IArgs } from "../types/args";
 import { IPrettierUpdateConfig } from "../types/prettierUpdateConfig";
 import { isError } from "../util/helpers";
 import { errorAndExit } from "../util/format";
+import { git } from "workspace-tools";
+import { branch } from "../util/git";
 
 function copySettingsToPackage(
   settings: IPrettierUpdateConfig,
@@ -25,6 +21,15 @@ function copySettingsToPackage(
   } catch (error) {
     return error;
   }
+}
+
+function managedPackageProcess(packageRoot, newPrettierConffig) {
+  const branchName = `user/prettier-updater/update--${pBasename(
+    packageRoot
+  )}-${Math.floor(Math.random() * 10e8)}`;
+  // branch()
+  const prettierrcFile = pJoin(packageRoot, ".prettierrc");
+  fsWriteFileSync(prettierrcFile, JSON.stringify(newPrettierConffig));
 }
 
 export function managedUpdatePackageSettings(

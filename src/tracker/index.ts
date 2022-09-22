@@ -37,6 +37,10 @@ export function writeProgress(
     } else {
       progress = <IProgress>readProgress(args.path);
     }
+    if (progressToUpdate.branches)
+      progressToUpdate.branches = progress.branches.concat(
+        progressToUpdate.branches
+      );
     if (isError(progress)) throw <Error>progress;
     const progressToWrite = {
       ...progress,

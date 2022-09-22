@@ -1,4 +1,6 @@
 import * as childprocess from "child_process";
+import { getDefaultRemote } from "workspace-tools";
+
 import { IArgs } from "../types/args";
 import { info } from "./format";
 
@@ -12,12 +14,12 @@ export default function git(argvs: IArgs, ...args: string[]): string {
   return gitProcess.stdout.toString();
 }
 
-export function branch(branchName: string, args: IArgs) {
-  return git(args, `branch -b ${branchName}`);
+export function branch(branchName: string, args: IArgs, startPoint?: string) {
+  return git(args, `checkout -b ${branchName}`);
 }
 
 export function push(branchName: string, args: IArgs) {
-  const remote = git(args, "remote");
+  const remote = getDefaultRemote({ cwd: args.path });
   return git(args, `push -f --set-upstream ${remote} ${branchName}`);
 }
 
