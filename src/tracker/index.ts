@@ -37,7 +37,7 @@ export function writeProgress(
     } else {
       progress = <IProgress>readProgress(args.path);
     }
-    if (progressToUpdate.branches)
+    if (progressToUpdate.branches && progress.branches)
       progressToUpdate.branches = progress.branches.concat(
         progressToUpdate.branches
       );

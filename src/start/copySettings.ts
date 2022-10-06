@@ -3,6 +3,7 @@ import {
   readFileSync as fsReadFileSync,
   writeFileSync as fsWriteFileSync,
 } from "fs";
+import { AxiosResponse } from "axios";
 
 import { fileExists, isError } from "../util/helpers";
 import { IArgs } from "../types/args";
@@ -95,34 +96,33 @@ export async function managedCopySettings(
     stageNumber: 1,
     stageDescription: "Add root settings to packages",
   });
-
-  if (response.status === 200) {
-    positive(`Created pull request ${response.data.url}`);
-    const didWrite = writeProgress(
-      {
-        currentStage: 1,
-        branches: [
-          {
-            name: branchName,
-            pullRequestID: response.data.pullRequestID,
-            pullRequestStatus: response.data.status,
-          },
-        ],
-      },
-      args
-    );
-    if (isError(didWrite)) {
-      clean(args);
-      errorAndExit((<Error>didWrite).message);
-    }
-    stageAndCommit(
-      [`.`],
-      "Prettier Updater - Copy legacy settings to all packages",
-      args.path
-    );
-    push(branchName, args);
-  } else {
+  if (isError(response)) {
     clean(args);
     errorAndExit("Failed to create Pull Request");
   }
+  const res = <AxiosResponse<any, any>>response;
+  positive(`Created pull request ${res.data.url}`);
+  const didWrite = writeProgress(
+    {
+      currentStage: 1,
+      branches: [
+        {
+          name: branchName,
+          pullRequestID: res.data.pullRequestID,
+          pullRequestStatus: res.data.status,
+        },
+      ],
+    },
+    args
+  );
+  if (isError(didWrite)) {
+    clean(args);
+    errorAndExit((<Error>didWrite).message);
+  }
+  stageAndCommit(
+    [`.`],
+    "Prettier Updater - Copy legacy settings to all packages",
+    args.path
+  );
+  push(branchName, args);
 }

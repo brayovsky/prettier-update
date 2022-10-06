@@ -13,7 +13,7 @@ export async function createRequest(
   options: AxiosRequestConfig = {},
   retry: number = 5,
   verbose = false
-): Promise<AxiosResponse<any, any>> {
+): Promise<AxiosResponse<any, any> | Error> {
   const xhrOptions: AxiosRequestConfig = {
     method,
     url,
@@ -48,7 +48,7 @@ export async function createRequest(
     if (retry === -1) {
       // TODO: Log subset / relevant info only
       logError(error);
-      return res;
+      return new Error(error.message);
     }
     return createRequest(url, method, accessToken, options, retry);
   }
@@ -59,7 +59,7 @@ export async function createADOPullRequest(
   sourceBranch: string,
   config: IPrettierUpdateConfig,
   view: IPrettierUpdateStage
-): Promise<AxiosResponse<any, any>> {
+): Promise<AxiosResponse<any, any> | Error> {
   /**
    * Add to env:
    * - access token $(System.AccessToken)

@@ -15,14 +15,14 @@ export default function git(argvs: IArgs, ...args: string[]): string {
 }
 
 export function branch(branchName: string, args: IArgs, startPoint?: string) {
-  return git(args, `checkout -b ${branchName}`);
+  return git(args, "checkout", "-b", branchName);
 }
 
 export function push(branchName: string, args: IArgs) {
   const remote = getDefaultRemote({ cwd: args.path });
-  return git(args, `push -f --set-upstream ${remote} ${branchName}`);
+  return git(args, "push", "-f", "--set-upstream", remote, branchName);
 }
 
 export function clean(args: IArgs) {
-  return git(args, "clean -fdx");
+  return git(args, "clean", "-fdx");
 }
